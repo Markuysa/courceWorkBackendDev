@@ -1,12 +1,20 @@
 package app
 
-import "github.com/Markuysa/courceWorkBackendDev/config"
+import (
+	"context"
+
+	"github.com/Markuysa/courceWorkBackendDev/config"
+)
 
 type App struct {
 	cfg config.Config
 }
 
-func Run() error {
+func New(cfg config.Config) *App {
+	return &App{cfg: cfg}
+}
+
+func (a App) Start(ctx context.Context) error {
 
 	return nil
 }

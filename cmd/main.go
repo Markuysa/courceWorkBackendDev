@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 
+	"github.com/Markuysa/courceWorkBackendDev/config"
 	"github.com/Markuysa/courceWorkBackendDev/internal/app"
 )
 
@@ -13,7 +14,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	app := app.NewApp(config)
+	app := app.New(config)
 
 	if err = app.Start(context.Background()); err != nil {
 		log.Fatal(err)

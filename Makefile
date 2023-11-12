@@ -2,23 +2,14 @@
 #/-------------------------------------------------Переменные окружения----------------------------------------------------------/
 GO = go
 
-# Сюда надо прописать путь к вашему проекту на гитлабе
+
 PROJECT_NAME = github.com/Markuysa/courceWorkBackendDev
 
-# root dirs - директории внешнего уровня, они все дефолтные
 ROOT_DIRS = cmd config internal migrations pkg utils
 
-# internal directories - директории в internal, тут уже зависит от вашего проекта
-# нужно менять под себя
 INTERNAL_DIRS = app system client admin
 
-# директории, которые имеют структуру
-#├── invoice
-#│  ├── delivery
-#│  ├── repo
-#│  └── usecase
-# то есть туда суем бизнес-логику и шнягу шняжную в delivery
-# нужно менять под себя
+
 STRUCT_DIRS = admin client
 #/-------------------------------------------------Переменные окружения----------------------------------------------------------/
 
@@ -27,11 +18,13 @@ STRUCT_DIRS = admin client
 #/-------------------------------------------------Основные команды----------------------------------------------------------/
 lint:
 	golangci-lint run -v --config golangci.yml
-# После настройки переменных окружения пишем make build и радуемся жизни
+
+
+# для генерилки
 build: create_dirs create_structure create_files
 	@$(GO) mod init $(PROJECT_NAME)
 	@$(GO) mod tidy
-# Очистка всего проекта
+
 clean:
 	@rm -rf $(ROOT_DIRS)
 	@rm -rf internal
