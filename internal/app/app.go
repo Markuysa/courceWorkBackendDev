@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/Markuysa/courceWorkBackendDev/config"
+	"github.com/Markuysa/courceWorkBackendDev/internal/usecase"
 )
 
 type App struct {
@@ -15,6 +16,7 @@ func New(cfg config.Config) *App {
 }
 
 func (a App) Start(ctx context.Context) error {
+	uc := usecase.New(nil, nil)
 
 	return nil
 }
