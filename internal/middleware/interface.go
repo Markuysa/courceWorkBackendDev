@@ -1,8 +1,11 @@
 package middleware
 
-import "net/http"
+import (
+	"github.com/gofiber/fiber/v2"
+)
 
 type Middleware interface {
-	AdminAuth(next http.Handler) http.Handler
-	ClientAuth(next http.Handler) http.Handler
+	AdminAuth(c *fiber.Ctx) error
+	ClientAuth(c *fiber.Ctx) error
+	DefaultAuth(c *fiber.Ctx) error
 }
