@@ -31,14 +31,28 @@ func (uc *UC) ShowTasksList(ctx context.Context, request models.ShowTasksListReq
 	ctx, span := oteltrace.NewSpan(ctx, "ShowTasksList")
 	defer span.End()
 
-	return
+	tasks, err := uc.clientRepo.GetTasksList(ctx, request.UserID)
+	if err != nil {
+		return response, err
+	}
+
+	return models.ShowTasksListResponse{
+		Tasks: tasks,
+	}, err
 }
 
 func (uc *UC) MoveTask(ctx context.Context, request models.MoveTaskRequest) (response models.MoveTaskResponse, err error) {
 	ctx, span := oteltrace.NewSpan(ctx, "MoveTask")
 	defer span.End()
 
-	return
+	err = uc.clientRepo.UpdateTask(ctx, models.UpdateTask{
+		ID:       request.TaskID,
+		Deadline: request.Updates.Deadline,
+	})
+
+	return models.MoveTaskResponse{
+		Success: err != nil,
+	}, err
 }
 
 func (uc *UC) LinkTG(ctx context.Context, request models.LinkTgRequest) (response models.LinkTgResponse, err error) {
