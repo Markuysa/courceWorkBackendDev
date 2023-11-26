@@ -3,10 +3,11 @@ package models
 type (
 	GenerateOTPResponse struct {
 		QR        []byte `json:"qr"`
+		Secret    string `json:"secret"`
 		FailCause string `json:"fail_cause"`
 	}
 	GenerateOTPRequest struct {
-		Username string `json:"username"`
+		Username string `validate:"required" json:"username"`
 	}
 	ValidateOTPRequest struct {
 		Username string `json:"username"`
@@ -21,27 +22,32 @@ type (
 	}
 	PrepareSignInResponse struct {
 		AccessToken string
+		FailCause   string
 	}
 
 	FinalizeSignInRequest struct {
-		Username  string
-		PassCode  string
-		AccessKey string
+		Username  string `json:"username"`
+		PassCode  string `json:"pass_code"`
+		AccessKey string `json:"access_key"`
 	}
 	FinalizeSignInResponse struct {
-		SessionKey string
+		SessionKey string `json:"session_key"`
+		FailCause  string `json:"fail_cause"`
 	}
 
 	SaveSessionRequest struct {
 		Username   string
 		SessionKey string
+		Role       int
 	}
 	SignUpRequest struct {
 		Username string
 		Password string
 	}
 	SignUpResponse struct {
-		Success bool
+		Success   bool   `json:"success"`
+		QR        []byte `json:"qr"`
+		FailCause string `json:"fail_cause"`
 	}
 
 	SaveOTPRequest struct {
@@ -64,5 +70,11 @@ type (
 		Username string
 	}
 	GetSessionRequest struct {
+		SessionKey string
+	}
+
+	Session struct {
+		UserID int
+		Role   int
 	}
 )

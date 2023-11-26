@@ -41,16 +41,22 @@ func (uc *UC) ShowTasksList(ctx context.Context, request models.ShowTasksListReq
 	}, err
 }
 
-func (uc *UC) MoveTask(ctx context.Context, request models.MoveTaskRequest) (response models.MoveTaskResponse, err error) {
+func (uc *UC) UpdateTask(ctx context.Context, request models.UpdateTask) (response models.UpdateTaskResponse, err error) {
 	ctx, span := oteltrace.NewSpan(ctx, "MoveTask")
 	defer span.End()
 
 	err = uc.clientRepo.UpdateTask(ctx, models.UpdateTask{
-		ID:       request.TaskID,
-		Deadline: request.Updates.Deadline,
+		ID:       request.ID,
+		Deadline: request.Deadline,
 	})
+	if err != nil {
+		return models.UpdateTaskResponse{
+			Success:   err != nil,
+			FailCause: err.Error(),
+		}, err
+	}
 
-	return models.MoveTaskResponse{
+	return models.UpdateTaskResponse{
 		Success: err != nil,
 	}, err
 }
@@ -59,5 +65,19 @@ func (uc *UC) LinkTG(ctx context.Context, request models.LinkTgRequest) (respons
 	ctx, span := oteltrace.NewSpan(ctx, "LinkTG")
 	defer span.End()
 
-	return
+	err = uc.clientRepo.LinkTelegram(
+		ctx,
+		request.UserID,
+		request.TgChat,
+	)
+	if err != nil {
+		return models.LinkTgResponse{
+			Success:   err != nil,
+			FailCause: err.Error(),
+		}, err
+	}
+
+	return models.LinkTgResponse{
+		Success: err != nil,
+	}, err
 }

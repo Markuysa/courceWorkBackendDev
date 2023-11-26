@@ -44,8 +44,14 @@ func (uc *UC) GenerateOTP(
 		Issuer:      uc.cfg.ServiceName,
 		AccountName: request.Username,
 	})
+	if err != nil {
+		return models.GenerateOTPResponse{
+			FailCause: err.Error(),
+		}, err
+	}
 
-	var buf bytes.Buffer
+	buf := bytes.Buffer{}
+
 	img, err := key.Image(200, 200)
 	if err != nil {
 		return models.GenerateOTPResponse{
@@ -60,19 +66,10 @@ func (uc *UC) GenerateOTP(
 		}, err
 	}
 
-	response = models.GenerateOTPResponse{
-		QR: buf.Bytes(),
-	}
-
-	err = uc.authRepo.SaveOTPSecret(ctx, models.SaveOTPRequest{
-		Username: request.Username,
-		Secret:   key.Secret(),
-	})
-	if err != nil {
-		return response, err
-	}
-
-	return response, err
+	return models.GenerateOTPResponse{
+		QR:     buf.Bytes(),
+		Secret: key.Secret(),
+	}, err
 }
 
 func (uc *UC) ValidateOTP(
@@ -107,13 +104,17 @@ func (uc *UC) PrepareSignIn(
 		Username: request.Username,
 	})
 	if err != nil {
-		return response, err
+		return models.PrepareSignInResponse{
+			FailCause: err.Error(),
+		}, err
 	}
 
 	valid := coder.CheckPassword(user.Password, request.Password)
 
 	if !valid {
-		return response, err
+		return models.PrepareSignInResponse{
+			FailCause: "invalid password",
+		}, err
 	}
 
 	key := uuid.New().String()
@@ -143,11 +144,15 @@ func (uc *UC) FinalizeSignIn(
 		Username: request.Username,
 	})
 	if err != nil {
-		return response, err
+		return models.FinalizeSignInResponse{
+			FailCause: err.Error(),
+		}, err
 	}
 
 	if !valid {
-		return response, err
+		return models.FinalizeSignInResponse{
+			FailCause: "invalid access token",
+		}, err
 	}
 
 	validateOTP, err := uc.ValidateOTP(ctx, models.ValidateOTPRequest{
@@ -155,11 +160,15 @@ func (uc *UC) FinalizeSignIn(
 		PassCode: request.PassCode,
 	})
 	if err != nil {
-		return response, err
+		return models.FinalizeSignInResponse{
+			FailCause: err.Error(),
+		}, err
 	}
 
 	if !validateOTP.Passed {
-		return response, err
+		return models.FinalizeSignInResponse{
+			FailCause: "invalid otp",
+		}, err
 	}
 
 	sessionKey := uuid.New().String()
@@ -169,7 +178,9 @@ func (uc *UC) FinalizeSignIn(
 		SessionKey: sessionKey,
 	})
 	if err != nil {
-		return response, err
+		return models.FinalizeSignInResponse{
+			FailCause: err.Error(),
+		}, err
 	}
 
 	return models.FinalizeSignInResponse{
@@ -181,18 +192,35 @@ func (uc *UC) SignUp(ctx context.Context, request models.SignUpRequest) (respons
 	ctx, span := oteltrace.NewSpan(ctx, "SignUp")
 	defer span.End()
 
+	otpResp, err := uc.GenerateOTP(ctx, models.GenerateOTPRequest{
+		Username: request.Username,
+	})
+	if err != nil {
+		return models.SignUpResponse{
+			FailCause: otpResp.FailCause,
+		}, err
+	}
+
 	password, err := coder.HashPassword(request.Password)
 	if err != nil {
-		return response, err
+		return models.SignUpResponse{
+			FailCause: err.Error(),
+		}, err
 	}
 
 	err = uc.authRepo.SaveUser(ctx, models.User{
-		Username: request.Username,
-		Password: password,
+		Username:  request.Username,
+		Password:  password,
+		OtpSecret: otpResp.Secret,
 	})
 	if err != nil {
-		return response, err
+		return models.SignUpResponse{
+			FailCause: err.Error(),
+		}, err
 	}
 
-	return response, err
+	return models.SignUpResponse{
+		Success: true,
+		QR:      otpResp.QR,
+	}, err
 }

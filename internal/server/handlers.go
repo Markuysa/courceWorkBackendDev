@@ -4,6 +4,7 @@ import (
 	adminDelivery "github.com/Markuysa/courceWorkBackendDev/internal/admin/delivery/http"
 	adminRepo "github.com/Markuysa/courceWorkBackendDev/internal/admin/repository"
 	adminUC "github.com/Markuysa/courceWorkBackendDev/internal/admin/usecase"
+	"github.com/Markuysa/courceWorkBackendDev/internal/auth/cache"
 	authDelivery "github.com/Markuysa/courceWorkBackendDev/internal/auth/delivery/http"
 	authRepo "github.com/Markuysa/courceWorkBackendDev/internal/auth/repository"
 	authUC "github.com/Markuysa/courceWorkBackendDev/internal/auth/usecase"
@@ -11,25 +12,25 @@ import (
 	clientRepo "github.com/Markuysa/courceWorkBackendDev/internal/client/repository"
 	clientUC "github.com/Markuysa/courceWorkBackendDev/internal/client/usecase"
 	"github.com/Markuysa/courceWorkBackendDev/internal/middleware"
-	"github.com/Markuysa/courceWorkBackendDev/utils/pgconnector"
+	"github.com/Markuysa/courceWorkBackendDev/utils/pgconn"
+	"github.com/Markuysa/courceWorkBackendDev/utils/redisconnector"
 )
 
 func (a App) MapHandlers() error {
-	pgRepo := pgconnector.New(a.cfg.Postgres)
+	pgRepo := pgconn.New(a.cfg.Postgres)
+	redisConn := redisconnector.New(a.cfg.Redis)
 
-	clientRepo := clientRepo.New(pgRepo)
-	adminRepo := adminRepo.New(pgRepo)
-	authRepo := authRepo.New(pgRepo)
+	clientRepos := clientRepo.New(pgRepo)
+	adminRepos := adminRepo.New(pgRepo)
+	authRepos := authRepo.New(pgRepo)
 
-	clientUC := clientUC.New(a.cfg, clientRepo)
-	adminUC := adminUC.New(a.cfg, adminRepo)
-	authUC := authUC.New(a.cfg, authRepo)
+	sessionCache := cache.New(redisConn, a.cfg)
 
-	mw := middleware.New()
+	clientUC := clientUC.New(a.cfg, clientRepos)
+	adminUC := adminUC.New(a.cfg, adminRepos)
+	authUC := authUC.New(a.cfg, sessionCache, authRepos)
 
-	if err := a.MapHandlers(); err != nil {
-		return err
-	}
+	mw := middleware.New(sessionCache)
 
 	clientHandlers := clientDelivery.New(clientUC)
 	adminHandlers := adminDelivery.New(adminUC)

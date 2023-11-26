@@ -6,12 +6,14 @@ import (
 
 	"github.com/Markuysa/courceWorkBackendDev/utils/duration"
 	"github.com/Markuysa/courceWorkBackendDev/utils/oteltrace"
-	"github.com/Markuysa/courceWorkBackendDev/utils/pgconnector"
+	"github.com/Markuysa/courceWorkBackendDev/utils/pgconn"
+	"github.com/Markuysa/courceWorkBackendDev/utils/redisconnector"
 )
 
 type Config struct {
 	Trace    oteltrace.Config
-	Postgres pgconnector.Config
+	Postgres pgconn.Config
+	Redis    redisconnector.Config
 	HTTP     struct {
 		URI string
 	}

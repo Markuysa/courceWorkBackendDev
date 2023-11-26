@@ -23,6 +23,5 @@ const (
 	update "user".user	
 	set tg_chat = $1
 	where id = $2
-	
 `
 )

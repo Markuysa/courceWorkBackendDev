@@ -6,15 +6,15 @@ import (
 
 	"github.com/Markuysa/courceWorkBackendDev/internal/models"
 	"github.com/Markuysa/courceWorkBackendDev/utils/oteltrace"
-	"github.com/Markuysa/courceWorkBackendDev/utils/pgconnector"
+	"github.com/Markuysa/courceWorkBackendDev/utils/pgconn"
 )
 
 type TaskRepository struct {
-	db *pgconnector.Connector
+	db *pgconn.Connector
 }
 
 func New(
-	db *pgconnector.Connector,
+	db *pgconn.Connector,
 ) Repository {
 
 	return &TaskRepository{
@@ -32,6 +32,9 @@ func (t *TaskRepository) GetTasksList(ctx context.Context, userID int) (tasks []
 		queryGetTasksList,
 		userID,
 	)
+	if err != nil {
+		return tasks, err
+	}
 
 	return tasks, err
 }
@@ -46,6 +49,9 @@ func (t *TaskRepository) UpdateTask(ctx context.Context, task models.UpdateTask)
 		time.Unix(task.Deadline, 0),
 		task.ID,
 	)
+	if err != nil {
+		return err
+	}
 
 	return err
 }
@@ -64,6 +70,9 @@ func (t *TaskRepository) LinkTelegram(
 		tgChat,
 		userID,
 	)
+	if err != nil {
+		return err
+	}
 
 	return err
 }

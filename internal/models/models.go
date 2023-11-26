@@ -6,7 +6,7 @@ import (
 
 type (
 	Task struct {
-		ID            int         `db:"id"` // require.
+		ID            int         `db:"id"` // require
 		Category      null.String `db:"category"`
 		Deadline      null.Time   `db:"deadline"`
 		Status        string      `db:"status"` // require
@@ -17,8 +17,10 @@ type (
 		ParticipantID null.Int    `db:"participant_id"`
 	}
 	User struct {
-		ID       int    `db:"id"`
-		Username string `db:"username"`
-		Password string `db:"password"`
+		ID        int         `db:"id"`
+		Username  string      `db:"username"`
+		Password  string      `db:"password"`
+		OtpSecret string      `db:"otp_secret"`
+		TgChat    null.String `db:"tg_chat"`
 	}
 )

@@ -1,4 +1,4 @@
-package pgconnector
+package pgconn
 
 type Config struct {
 	DB       string `json:"DB"`

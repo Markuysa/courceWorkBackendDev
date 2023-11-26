@@ -1,10 +1,11 @@
-package pgconnector
+package pgconn
 
 import (
 	"fmt"
 	"log"
 
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq" // Import the PostgreSQL driver
 )
 
 type Connector struct {
@@ -14,11 +15,12 @@ type Connector struct {
 
 func New(cfg Config) *Connector {
 	uri := fmt.Sprintf(
-		"postgres://%s:%s@%s:%s",
-		cfg.Username,
-		cfg.Password,
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		cfg.Host,
 		cfg.Port,
+		cfg.Username,
+		cfg.Password,
+		cfg.DB,
 	)
 
 	conn, err := sqlx.Open("postgres", uri)

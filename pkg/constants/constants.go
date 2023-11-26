@@ -2,6 +2,8 @@ package constants
 
 const (
 	TraceIDHeader = "Trace-ID"
+	UserIDKey     = "userID"
+	SessionKey    = "session"
 )
 
 const (

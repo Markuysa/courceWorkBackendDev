@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"log"
 
 	"github.com/Markuysa/courceWorkBackendDev/config"
 	"github.com/gofiber/fiber/v2"
@@ -31,10 +32,14 @@ func New(
 
 func (a App) Start(ctx context.Context) error {
 
-	err := a.app.Listen(a.cfg.HTTP.URI)
+	err := a.MapHandlers()
 	if err != nil {
 		return err
 	}
 
-	return a.MapHandlers()
+	if err = a.app.Listen(a.cfg.HTTP.URI); err != nil {
+		log.Fatal(err)
+	}
+
+	return nil
 }

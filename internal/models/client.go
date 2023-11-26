@@ -8,14 +8,14 @@ type (
 		Tasks []Task
 	}
 	MoveTaskRequest struct {
-		TaskID  int
 		Updates UpdateTask
 	}
 	MoveTaskResponse struct {
 		Success bool
 	}
 	LinkTgResponse struct {
-		Success bool
+		Success   bool
+		FailCause string
 	}
 	LinkTgRequest struct {
 		TgChat string
@@ -24,5 +24,9 @@ type (
 	UpdateTask struct {
 		ID       int
 		Deadline int64
+	}
+	UpdateTaskResponse struct {
+		Success   bool   `json:"success"`
+		FailCause string `json:"fail_cause"`
 	}
 )
