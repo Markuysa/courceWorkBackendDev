@@ -46,4 +46,9 @@ type (
 		ID          int    `db:"id"`
 		Description string `db:"description"`
 	}
+
+	Comment struct {
+		Message string `db:"message" json:"message"`
+		UserID  int    `db:"user_id" json:"user_id"`
+	}
 )

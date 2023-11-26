@@ -2,7 +2,7 @@ package repository
 
 import (
 	"context"
-	"time"
+	"errors"
 
 	"github.com/Markuysa/courceWorkBackendDev/internal/models"
 	"github.com/Markuysa/courceWorkBackendDev/utils/oteltrace"
@@ -87,36 +87,50 @@ func (t *TaskRepository) GetPriorityList(ctx context.Context) (priority []models
 	return priority, err
 }
 
-func (t *TaskRepository) UpdateTask(ctx context.Context, task models.UpdateTask) (err error) {
+func (t *TaskRepository) UpdateTask(ctx context.Context, task models.Task) (err error) {
 	ctx, span := oteltrace.NewSpan(ctx, "UpdateTask")
 	defer span.End()
 
-	_, err = t.db.ExecContext(
+	rows, err := t.db.ExecContext(
 		ctx,
 		queryUpdateTask,
-		time.Unix(task.Deadline, 0),
+		task.Deadline,
+		task.ParticipantID,
+		task.Description,
+		task.Status,
+		task.Category,
+		task.Priority,
 		task.ID,
 	)
 	if err != nil {
 		return err
 	}
 
-	return err
+	count, err := rows.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if count == 0 {
+		return errors.New("invalid rows count")
+	}
+
+	return nil
 }
 
-func (t *TaskRepository) LinkTelegram(
+func (t *TaskRepository) AddComment(
 	ctx context.Context,
-	userID int,
-	tgChat string,
+	comment []byte,
+	taskID int,
 ) (err error) {
-	ctx, span := oteltrace.NewSpan(ctx, "LinkTelegram")
+	ctx, span := oteltrace.NewSpan(ctx, "AddComment")
 	defer span.End()
 
 	_, err = t.db.ExecContext(
 		ctx,
-		queryLinkTelegram,
-		tgChat,
-		userID,
+		queryAddComment,
+		comment,
+		taskID,
 	)
 	if err != nil {
 		return err

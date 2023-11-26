@@ -2,14 +2,12 @@ package usecase
 
 import (
 	"context"
-	"database/sql"
-	"time"
 
 	"github.com/Markuysa/courceWorkBackendDev/config"
 	"github.com/Markuysa/courceWorkBackendDev/internal/admin/repository"
 	"github.com/Markuysa/courceWorkBackendDev/internal/models"
+	"github.com/Markuysa/courceWorkBackendDev/utils/convert"
 	"github.com/Markuysa/courceWorkBackendDev/utils/oteltrace"
-	"gopkg.in/guregu/null.v3"
 )
 
 type UC struct {
@@ -34,42 +32,11 @@ func (uc *UC) AssignTask(ctx context.Context, request models.AssignTaskRequest) 
 	return
 }
 
-func (uc *UC) CreateTask(ctx context.Context, request models.CreateTaskRequest) (response models.CreateTaskResponse, err error) {
+func (uc *UC) CreateTask(ctx context.Context, request models.TaskModel) (response models.CreateTaskResponse, err error) {
 	ctx, span := oteltrace.NewSpan(ctx, "AssignTask")
 	defer span.End()
 
-	err = uc.adminRepo.AddTask(ctx, models.Task{
-		Category: null.Int{
-			NullInt64: sql.NullInt64{
-				Int64: request.Category,
-				Valid: request.Category != 0,
-			},
-		},
-		Deadline: null.Time{
-			Time:  time.Unix(request.Deadline, 0),
-			Valid: request.Deadline != 0,
-		},
-		Status: null.Int{
-			NullInt64: sql.NullInt64{
-				Int64: request.Status,
-				Valid: request.Status != 0,
-			},
-		},
-		Priority: null.Int{
-			NullInt64: sql.NullInt64{
-				Int64: request.Priority,
-				Valid: request.Priority != 0,
-			},
-		},
-		CreatorID:   request.Creator,
-		Description: request.Description,
-		ParticipantID: null.Int{
-			NullInt64: sql.NullInt64{
-				Int64: request.ParticipantID,
-				Valid: request.ParticipantID != 0,
-			},
-		},
-	})
+	err = uc.adminRepo.AddTask(ctx, convert.TaskToDBModel(request))
 	if err != nil {
 		return models.CreateTaskResponse{
 			FailCause: err.Error(),

@@ -5,7 +5,8 @@ type (
 	}
 	AssignTaskResponse struct {
 	}
-	CreateTaskRequest struct {
+	TaskModel struct {
+		ID            int    `json:"id"`
 		Category      int64  `json:"category"`
 		Status        int64  `json:"status"`
 		Creator       int64  `json:"creator"`

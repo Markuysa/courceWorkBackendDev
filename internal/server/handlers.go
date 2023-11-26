@@ -1,6 +1,9 @@
 package server
 
 import (
+	"context"
+	"log"
+
 	adminDelivery "github.com/Markuysa/courceWorkBackendDev/internal/admin/delivery/http"
 	adminRepo "github.com/Markuysa/courceWorkBackendDev/internal/admin/repository"
 	adminUC "github.com/Markuysa/courceWorkBackendDev/internal/admin/usecase"
@@ -12,6 +15,8 @@ import (
 	clientRepo "github.com/Markuysa/courceWorkBackendDev/internal/client/repository"
 	clientUC "github.com/Markuysa/courceWorkBackendDev/internal/client/usecase"
 	"github.com/Markuysa/courceWorkBackendDev/internal/middleware"
+	tgRepo "github.com/Markuysa/courceWorkBackendDev/internal/telegram/repository"
+	tgUC "github.com/Markuysa/courceWorkBackendDev/internal/telegram/usecase"
 	"github.com/Markuysa/courceWorkBackendDev/utils/pgconn"
 	"github.com/Markuysa/courceWorkBackendDev/utils/redisconnector"
 )
@@ -23,12 +28,14 @@ func (a App) MapHandlers() error {
 	clientRepos := clientRepo.New(pgRepo)
 	adminRepos := adminRepo.New(pgRepo)
 	authRepos := authRepo.New(pgRepo)
+	tgRepos := tgRepo.New(pgRepo)
 
 	sessionCache := cache.New(redisConn, a.cfg)
 
 	clientUseCase := clientUC.New(a.cfg, clientRepos)
 	adminUseCase := adminUC.New(a.cfg, adminRepos)
 	authUseCase := authUC.New(a.cfg, sessionCache, authRepos)
+	tgUSecase := tgUC.New(a.cfg, tgRepos)
 
 	mw := middleware.New(sessionCache)
 
@@ -44,6 +51,16 @@ func (a App) MapHandlers() error {
 
 	authGroup := a.app.Group("/auth")
 	authDelivery.MapAuthRoutes(authGroup, mw, authHandlers)
+
+	go func() {
+		tgUSecase.StartWorker(context.Background())
+	}()
+
+	go func() {
+		if err := tgUSecase.ListenMessages(context.Background()); err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	return nil
 }

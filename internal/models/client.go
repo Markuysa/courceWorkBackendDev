@@ -14,11 +14,10 @@ type (
 		Success bool
 	}
 	LinkTgResponse struct {
-		Success   bool
-		FailCause string
+		Link      string `json:"link"`
+		FailCause string `json:"fail_cause"`
 	}
 	LinkTgRequest struct {
-		TgChat string
 		UserID int
 	}
 	UpdateTask struct {
@@ -28,5 +27,9 @@ type (
 	UpdateTaskResponse struct {
 		Success   bool   `json:"success"`
 		FailCause string `json:"fail_cause"`
+	}
+	AddComment struct {
+		TaskID  int     `json:"task_id"`
+		Comment Comment `json:"comment"`
 	}
 )

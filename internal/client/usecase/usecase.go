@@ -2,10 +2,14 @@ package usecase
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 
 	"github.com/Markuysa/courceWorkBackendDev/config"
 	"github.com/Markuysa/courceWorkBackendDev/internal/client/repository"
 	"github.com/Markuysa/courceWorkBackendDev/internal/models"
+	"github.com/Markuysa/courceWorkBackendDev/pkg/telegram"
+	"github.com/Markuysa/courceWorkBackendDev/utils/convert"
 	"github.com/Markuysa/courceWorkBackendDev/utils/oteltrace"
 )
 
@@ -77,14 +81,11 @@ func (uc *UC) GetPriorityList(ctx context.Context) (response []models.PriorityLi
 	return response, err
 }
 
-func (uc *UC) UpdateTask(ctx context.Context, request models.UpdateTask) (response models.UpdateTaskResponse, err error) {
+func (uc *UC) UpdateTask(ctx context.Context, request models.TaskModel) (response models.UpdateTaskResponse, err error) {
 	ctx, span := oteltrace.NewSpan(ctx, "MoveTask")
 	defer span.End()
 
-	err = uc.clientRepo.UpdateTask(ctx, models.UpdateTask{
-		ID:       request.ID,
-		Deadline: request.Deadline,
-	})
+	err = uc.clientRepo.UpdateTask(ctx, convert.TaskToDBModel(request))
 	if err != nil {
 		return models.UpdateTaskResponse{
 			Success:   err != nil,
@@ -93,7 +94,7 @@ func (uc *UC) UpdateTask(ctx context.Context, request models.UpdateTask) (respon
 	}
 
 	return models.UpdateTaskResponse{
-		Success: err != nil,
+		Success: true,
 	}, err
 }
 
@@ -101,19 +102,26 @@ func (uc *UC) LinkTG(ctx context.Context, request models.LinkTgRequest) (respons
 	ctx, span := oteltrace.NewSpan(ctx, "LinkTG")
 	defer span.End()
 
-	err = uc.clientRepo.LinkTelegram(
-		ctx,
-		request.UserID,
-		request.TgChat,
-	)
-	if err != nil {
-		return models.LinkTgResponse{
-			Success:   err != nil,
-			FailCause: err.Error(),
-		}, err
-	}
+	link := fmt.Sprintf(telegram.TgLink, request.UserID)
 
 	return models.LinkTgResponse{
-		Success: err != nil,
+		Link: link,
 	}, err
+}
+
+func (uc *UC) AddComment(ctx context.Context, comment models.AddComment) (err error) {
+	ctx, span := oteltrace.NewSpan(ctx, "AddComment")
+	defer span.End()
+
+	commentData, err := json.Marshal(comment.Comment)
+	if err != nil {
+		return err
+	}
+
+	err = uc.clientRepo.AddComment(ctx, commentData, comment.TaskID)
+	if err != nil {
+		return err
+	}
+
+	return err
 }

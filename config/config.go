@@ -23,6 +23,9 @@ type Config struct {
 		AccessTTL  duration.Duration
 		SessionTTL duration.Duration
 	}
+	Telegram struct {
+		Token string
+	}
 }
 
 func LoadConfig() (cfg Config, err error) {

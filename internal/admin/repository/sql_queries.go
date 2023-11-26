@@ -34,7 +34,7 @@ const (
 	left join lists.category_list ct on ct.id = ts.category
 	left join lists.priority_list pr on pr.id = ts.priority
 	where
-		participant_id is null or participant_id = $1
+		$1::integer is null or participant_id = $1::integer
 	limit $2 offset $3
 `
 )

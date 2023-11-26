@@ -48,10 +48,16 @@ func (a AdminHandlers) CreateTask(c *fiber.Ctx) error {
 	ctx, span := oteltrace.NewFiberSpan(c, "CreateTask")
 	defer span.End()
 
-	in := models.CreateTaskRequest{}
+	in := models.TaskModel{}
 
 	if err := c.BodyParser(&in); err != nil {
 		return fiber.ErrBadRequest
+	}
+
+	if in.Description == "" {
+		return c.Status(fiber.StatusInternalServerError).JSON(models.CreateTaskResponse{
+			FailCause: "empty description",
+		})
 	}
 
 	adminID, ok := c.Locals(constants.UserIDKey).(int)

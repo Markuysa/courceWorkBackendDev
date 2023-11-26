@@ -59,7 +59,8 @@ func (mw *Mw) ClientAuth(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
-	if cachedSession.Role != lists.RoleUser {
+	if cachedSession.Role != lists.RoleUser &&
+		cachedSession.Role != lists.RoleAdmin {
 		return c.SendStatus(fiber.StatusForbidden)
 	}
 

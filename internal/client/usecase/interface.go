@@ -9,7 +9,8 @@ import (
 type Usecase interface {
 	LinkTG(ctx context.Context, request models.LinkTgRequest) (response models.LinkTgResponse, err error)
 	ShowTasksList(ctx context.Context, request models.ShowTasksListRequest) (response models.ShowTasksListResponse, err error)
-	UpdateTask(ctx context.Context, request models.UpdateTask) (response models.UpdateTaskResponse, err error)
+	UpdateTask(ctx context.Context, request models.TaskModel) (response models.UpdateTaskResponse, err error)
+	AddComment(ctx context.Context, comment models.AddComment) (err error)
 
 	GetPriorityList(ctx context.Context) (priority []models.PriorityListItem, err error)
 	GetStatusList(ctx context.Context) (status []models.StatusListItem, err error)
