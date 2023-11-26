@@ -2,6 +2,7 @@ package cache
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -63,12 +64,19 @@ func (s SessionCache) SaveSession(ctx context.Context, request models.SaveSessio
 	ctx, span := oteltrace.NewSpan(ctx, "SaveSession")
 	defer span.End()
 
+	session, err := json.Marshal(models.Session{
+		Role:     request.Role,
+		UserID:   request.UserID,
+		Username: request.Username,
+	})
+	if err != nil {
+		return err
+	}
+
 	return s.redis.Set(
 		ctx,
 		fmt.Sprintf(constants.SessionKeyf, request.SessionKey),
-		models.Session{
-			Role: request.Role,
-		},
+		session,
 		s.cfg.Auth.SessionTTL.Duration,
 	).Err()
 }
@@ -77,13 +85,15 @@ func (s SessionCache) GetSession(ctx context.Context, request models.GetSessionR
 	ctx, span := oteltrace.NewSpan(ctx, "GetSession")
 	defer span.End()
 
-	err = s.redis.Get(
+	sessionByte, err := s.redis.Get(
 		ctx,
 		fmt.Sprintf(constants.SessionKeyf, request.SessionKey),
-	).Scan(&session)
+	).Bytes()
 	if err != nil {
 		return session, err
 	}
+
+	err = json.Unmarshal(sessionByte, &session)
 
 	return session, err
 }

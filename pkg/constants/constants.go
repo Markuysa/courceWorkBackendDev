@@ -4,6 +4,7 @@ const (
 	TraceIDHeader = "Trace-ID"
 	UserIDKey     = "userID"
 	SessionKey    = "session"
+	AccessKey     = "access"
 )
 
 const (

@@ -17,8 +17,9 @@ type Config struct {
 	HTTP     struct {
 		URI string
 	}
-	ServiceName string
-	Auth        struct {
+	ServiceName      string
+	AdminServiceName string
+	Auth             struct {
 		AccessTTL  duration.Duration
 		SessionTTL duration.Duration
 	}

@@ -6,10 +6,10 @@ import (
 )
 
 func MapAdminRoutes(route fiber.Router, mw middleware.Middleware, handlers Handlers) {
-	route.Group("/tasks")
+	tasks := route.Group("/tasks")
 	{
-		route.Post("/create", mw.AdminAuth, handlers.CreateTask)
-		route.Post("/list", mw.AdminAuth, handlers.GetUsersTaskList)
-		route.Post("/delete", mw.AdminAuth, handlers.DeleteTask)
+		tasks.Post("/create", mw.AdminAuth, handlers.CreateTask)
+		tasks.Post("/list", mw.AdminAuth, handlers.GetUsersTaskList)
+		tasks.Post("/delete", mw.AdminAuth, handlers.DeleteTask)
 	}
 }

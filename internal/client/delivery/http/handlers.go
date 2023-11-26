@@ -35,6 +35,7 @@ func (h *ClientHandlers) UpdateTask(c *fiber.Ctx) error {
 
 	return c.JSON(response)
 }
+
 func (h *ClientHandlers) GetTasksList(c *fiber.Ctx) error {
 	ctx, span := oteltrace.NewFiberSpan(c, "GetTasksList")
 	defer span.End()
@@ -52,4 +53,40 @@ func (h *ClientHandlers) GetTasksList(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(tasks)
+}
+
+func (h *ClientHandlers) GetStatusList(c *fiber.Ctx) error {
+	ctx, span := oteltrace.NewFiberSpan(c, "GetStatusList")
+	defer span.End()
+
+	response, err := h.uc.GetStatusList(ctx)
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+
+	return c.JSON(response)
+}
+
+func (h *ClientHandlers) GetPriorityList(c *fiber.Ctx) error {
+	ctx, span := oteltrace.NewFiberSpan(c, "GetPriorityList")
+	defer span.End()
+
+	response, err := h.uc.GetPriorityList(ctx)
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+
+	return c.JSON(response)
+}
+
+func (h *ClientHandlers) GetCategoryList(c *fiber.Ctx) error {
+	ctx, span := oteltrace.NewFiberSpan(c, "GetCategoryList")
+	defer span.End()
+
+	response, err := h.uc.GetCategoryList(ctx)
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+
+	return c.JSON(response)
 }

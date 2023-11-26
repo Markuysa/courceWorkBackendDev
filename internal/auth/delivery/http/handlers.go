@@ -1,8 +1,11 @@
 package http
 
 import (
+	"time"
+
 	"github.com/Markuysa/courceWorkBackendDev/internal/auth/usecase"
 	"github.com/Markuysa/courceWorkBackendDev/internal/models"
+	"github.com/Markuysa/courceWorkBackendDev/pkg/constants"
 	"github.com/Markuysa/courceWorkBackendDev/utils/oteltrace"
 	"github.com/gofiber/fiber/v2"
 )
@@ -17,8 +20,35 @@ func New(uc usecase.Usecase) Handlers {
 	}
 }
 
-func (a AuthHandlers) PrepareSignIn(c *fiber.Ctx) error {
-	ctx, span := oteltrace.NewFiberSpan(c, "ClientSignUP")
+func (a AuthHandlers) AdminSignIn(c *fiber.Ctx) error {
+	ctx, span := oteltrace.NewFiberSpan(c, "AdminSignIn")
+	defer span.End()
+
+	in := models.AdminSignInRequest{}
+
+	if err := c.BodyParser(&in); err != nil {
+		return fiber.ErrBadRequest
+	}
+
+	response, err := a.uc.AdminSignIn(ctx, in)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(response)
+	}
+
+	c.Cookie(&fiber.Cookie{
+		Name:     constants.SessionKey,
+		Value:    response.SessionKey,
+		Expires:  time.Now().Add(time.Minute * 30),
+		HTTPOnly: true,
+	})
+
+	return c.JSON(models.FinalizeClientSignIn{
+		Success: err == nil,
+	})
+}
+
+func (a AuthHandlers) PrepareClientSignIn(c *fiber.Ctx) error {
+	ctx, span := oteltrace.NewFiberSpan(c, "PrepareClientSignIn")
 	defer span.End()
 
 	in := models.PrepareSignInRequest{}
@@ -27,16 +57,25 @@ func (a AuthHandlers) PrepareSignIn(c *fiber.Ctx) error {
 		return fiber.ErrBadRequest
 	}
 
-	response, err := a.uc.PrepareSignIn(ctx, in)
+	response, err := a.uc.PrepareClientSignIn(ctx, in)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(response)
 	}
 
-	return c.JSON(response)
+	c.Cookie(&fiber.Cookie{
+		Name:     constants.AccessKey,
+		Value:    response.AccessToken,
+		Expires:  time.Now().Add(time.Minute * 5),
+		HTTPOnly: true,
+	})
+
+	return c.JSON(models.FinalizeClientSignIn{
+		Success: err == nil,
+	})
 }
 
-func (a AuthHandlers) FinalizeSignIn(c *fiber.Ctx) error {
-	ctx, span := oteltrace.NewFiberSpan(c, "ClientSignUP")
+func (a AuthHandlers) FinalizeClientSignIn(c *fiber.Ctx) error {
+	ctx, span := oteltrace.NewFiberSpan(c, "FinalizeClientSignIn")
 	defer span.End()
 
 	in := models.FinalizeSignInRequest{}
@@ -45,7 +84,38 @@ func (a AuthHandlers) FinalizeSignIn(c *fiber.Ctx) error {
 		return fiber.ErrBadRequest
 	}
 
-	response, err := a.uc.FinalizeSignIn(ctx, in)
+	accessKey := c.Cookies(constants.AccessKey)
+
+	in.AccessKey = accessKey
+
+	response, err := a.uc.FinalizeClientSignIn(ctx, in)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(response)
+	}
+
+	c.Cookie(&fiber.Cookie{
+		Name:     constants.SessionKey,
+		Value:    response.SessionKey,
+		Expires:  time.Now().Add(time.Minute * 30),
+		HTTPOnly: true,
+	})
+
+	return c.JSON(models.FinalizeClientSignIn{
+		Success: err == nil,
+	})
+}
+
+func (a AuthHandlers) ClientSignUP(c *fiber.Ctx) error {
+	ctx, span := oteltrace.NewFiberSpan(c, "ClientSignUP")
+	defer span.End()
+
+	in := models.ClientSignUpRequest{}
+
+	if err := c.BodyParser(&in); err != nil {
+		return fiber.ErrBadRequest
+	}
+
+	response, err := a.uc.ClientSignUP(ctx, in)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(response)
 	}
@@ -53,17 +123,17 @@ func (a AuthHandlers) FinalizeSignIn(c *fiber.Ctx) error {
 	return c.JSON(response)
 }
 
-func (a AuthHandlers) ClientSignUP(c *fiber.Ctx) error {
+func (a AuthHandlers) AdminSignUp(c *fiber.Ctx) error {
 	ctx, span := oteltrace.NewFiberSpan(c, "ClientSignUP")
 	defer span.End()
 
-	in := models.SignUpRequest{}
+	in := models.AdminSignUpRequest{}
 
 	if err := c.BodyParser(&in); err != nil {
 		return fiber.ErrBadRequest
 	}
 
-	response, err := a.uc.SignUp(ctx, in)
+	response, err := a.uc.AdminSignUP(ctx, in)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(response)
 	}

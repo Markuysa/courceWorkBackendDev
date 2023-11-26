@@ -12,6 +12,15 @@ type TaskRepository struct {
 	db *pgconn.Connector
 }
 
+func New(
+	db *pgconn.Connector,
+) Repository {
+
+	return &TaskRepository{
+		db: db,
+	}
+}
+
 func (t TaskRepository) SaveOTPSecret(ctx context.Context, saveOTPParams models.SaveOTPRequest) (err error) {
 	ctx, span := oteltrace.NewSpan(ctx, "SaveOTPSecret")
 	defer span.End()
@@ -84,11 +93,54 @@ func (t TaskRepository) SaveUser(ctx context.Context, user models.User) (err err
 	return err
 }
 
-func New(
-	db *pgconn.Connector,
-) Repository {
+func (t TaskRepository) SaveAdmin(ctx context.Context, admin models.User) (err error) {
+	ctx, span := oteltrace.NewSpan(ctx, "SaveUser")
+	defer span.End()
 
-	return &TaskRepository{
-		db: db,
+	_, err = t.db.ExecContext(
+		ctx,
+		querySaveAdmin,
+		admin.Username,
+		admin.Password,
+		admin.OtpSecret,
+	)
+	if err != nil {
+		return err
 	}
+
+	return err
+}
+
+func (t TaskRepository) GetAdminOTPSecret(ctx context.Context, request models.GetOTPRequest) (secret string, err error) {
+	ctx, span := oteltrace.NewSpan(ctx, "GetOTPSecret")
+	defer span.End()
+
+	err = t.db.GetContext(
+		ctx,
+		&secret,
+		queryGetAdminOTP,
+		request.Username,
+	)
+	if err != nil {
+		return secret, err
+	}
+
+	return secret, err
+}
+
+func (t TaskRepository) GetAdminByUsername(ctx context.Context, request models.GetUserRequest) (user models.User, err error) {
+	ctx, span := oteltrace.NewSpan(ctx, "GetAdminByUsername")
+	defer span.End()
+
+	err = t.db.GetContext(
+		ctx,
+		&user,
+		queryGetAdmin,
+		request.Username,
+	)
+	if err != nil {
+		return user, err
+	}
+
+	return user, err
 }

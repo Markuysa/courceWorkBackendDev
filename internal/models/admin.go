@@ -1,20 +1,18 @@
 package models
 
-import "time"
-
 type (
 	AssignTaskRequest struct {
 	}
 	AssignTaskResponse struct {
 	}
 	CreateTaskRequest struct {
-		Category      string
-		Status        string
-		Creator       int
-		Description   string
-		Priority      string
-		ParticipantID int64
-		Deadline      time.Time
+		Category      int64  `json:"category"`
+		Status        int64  `json:"status"`
+		Creator       int64  `json:"creator"`
+		Description   string `json:"description"`
+		Priority      int64  `json:"priority"`
+		ParticipantID int64  `json:"participant_id"`
+		Deadline      int64  `json:"deadline"`
 	}
 	CreateTaskResponse struct {
 		Success   bool
@@ -32,5 +30,13 @@ type (
 		Limit  int
 		Offset int
 		UserID *int
+	}
+	PriorityItem struct {
+		ID          int    `json:"id"`
+		Description string `json:"description"`
+	}
+	StatusItem struct {
+		ID          int    `json:"id"`
+		Description string `json:"description"`
 	}
 )

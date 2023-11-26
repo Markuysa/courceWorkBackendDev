@@ -6,14 +6,25 @@ import (
 
 type (
 	Task struct {
-		ID            int         `db:"id"` // require
+		ID            int64     `db:"id"` // require
+		Category      null.Int  `db:"category"`
+		Deadline      null.Time `db:"deadline"`
+		Status        null.Int  `db:"status"`
+		Comments      []byte    `db:"comments"`
+		Priority      null.Int  `db:"priority"`
+		CreatorID     int64     `db:"creator_id"`  // require
+		Description   string    `db:"description"` // require
+		ParticipantID null.Int  `db:"participant_id"`
+	}
+	TaskItem struct {
+		ID            int64       `db:"id"` // require
 		Category      null.String `db:"category"`
-		Deadline      null.Time   `db:"deadline"`
-		Status        string      `db:"status"` // require
+		Deadline      null.Int    `db:"deadline"`
+		Status        null.String `db:"status"`
 		Comments      []byte      `db:"comments"`
 		Priority      null.String `db:"priority"`
-		CreatorID     int         `db:"creator_id"`  // require
-		Description   string      `db:"description"` // require
+		CreatorID     int64       `db:"creator_id"`  // require
+		Description   null.String `db:"description"` // require
 		ParticipantID null.Int    `db:"participant_id"`
 	}
 	User struct {
@@ -22,5 +33,17 @@ type (
 		Password  string      `db:"password"`
 		OtpSecret string      `db:"otp_secret"`
 		TgChat    null.String `db:"tg_chat"`
+	}
+	StatusListItem struct {
+		ID          int    `db:"id"`
+		Description string `db:"description"`
+	}
+	PriorityListItem struct {
+		ID          int    `db:"id"`
+		Description string `db:"description"`
+	}
+	CategoryListItem struct {
+		ID          int    `db:"id"`
+		Description string `db:"description"`
 	}
 )

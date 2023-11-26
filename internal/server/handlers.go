@@ -26,15 +26,15 @@ func (a App) MapHandlers() error {
 
 	sessionCache := cache.New(redisConn, a.cfg)
 
-	clientUC := clientUC.New(a.cfg, clientRepos)
-	adminUC := adminUC.New(a.cfg, adminRepos)
-	authUC := authUC.New(a.cfg, sessionCache, authRepos)
+	clientUseCase := clientUC.New(a.cfg, clientRepos)
+	adminUseCase := adminUC.New(a.cfg, adminRepos)
+	authUseCase := authUC.New(a.cfg, sessionCache, authRepos)
 
 	mw := middleware.New(sessionCache)
 
-	clientHandlers := clientDelivery.New(clientUC)
-	adminHandlers := adminDelivery.New(adminUC)
-	authHandlers := authDelivery.New(authUC)
+	clientHandlers := clientDelivery.New(clientUseCase)
+	adminHandlers := adminDelivery.New(adminUseCase)
+	authHandlers := authDelivery.New(authUseCase)
 
 	clientGroup := a.app.Group("/client")
 	clientDelivery.MapClientRoutes(clientGroup, mw, clientHandlers)

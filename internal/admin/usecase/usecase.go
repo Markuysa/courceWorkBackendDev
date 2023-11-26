@@ -39,21 +39,26 @@ func (uc *UC) CreateTask(ctx context.Context, request models.CreateTaskRequest) 
 	defer span.End()
 
 	err = uc.adminRepo.AddTask(ctx, models.Task{
-		Category: null.String{
-			NullString: sql.NullString{
-				String: request.Category,
-				Valid:  request.Category != "",
+		Category: null.Int{
+			NullInt64: sql.NullInt64{
+				Int64: request.Category,
+				Valid: request.Category != 0,
 			},
 		},
 		Deadline: null.Time{
-			Time:  request.Deadline,
-			Valid: request.Deadline != time.Time{},
+			Time:  time.Unix(request.Deadline, 0),
+			Valid: request.Deadline != 0,
 		},
-		Status: request.Status,
-		Priority: null.String{
-			NullString: sql.NullString{
-				String: request.Priority,
-				Valid:  request.Priority != "",
+		Status: null.Int{
+			NullInt64: sql.NullInt64{
+				Int64: request.Status,
+				Valid: request.Status != 0,
+			},
+		},
+		Priority: null.Int{
+			NullInt64: sql.NullInt64{
+				Int64: request.Priority,
+				Valid: request.Priority != 0,
 			},
 		},
 		CreatorID:   request.Creator,
@@ -92,7 +97,7 @@ func (uc *UC) DeleteTask(ctx context.Context, request models.DeleteTaskRequest) 
 	}, err
 }
 
-func (uc *UC) GetUsersTaskList(ctx context.Context, filters models.TasksFilters) (tasks []models.Task, err error) {
+func (uc *UC) GetUsersTaskList(ctx context.Context, filters models.TasksFilters) (tasks []models.TaskItem, err error) {
 	ctx, span := oteltrace.NewSpan(ctx, "GetUsersTaskList")
 	defer span.End()
 

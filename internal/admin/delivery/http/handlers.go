@@ -3,8 +3,10 @@ package http
 import (
 	"github.com/Markuysa/courceWorkBackendDev/internal/admin/usecase"
 	"github.com/Markuysa/courceWorkBackendDev/internal/models"
+	"github.com/Markuysa/courceWorkBackendDev/pkg/constants"
 	"github.com/Markuysa/courceWorkBackendDev/utils/oteltrace"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 )
 
 type AdminHandlers struct {
@@ -36,7 +38,7 @@ func (a AdminHandlers) GetUsersTaskList(c *fiber.Ctx) error {
 
 	tasks, err := a.uc.GetUsersTaskList(ctx, in)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(tasks)
+		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
 	return c.JSON(tasks)
@@ -52,8 +54,16 @@ func (a AdminHandlers) CreateTask(c *fiber.Ctx) error {
 		return fiber.ErrBadRequest
 	}
 
+	adminID, ok := c.Locals(constants.UserIDKey).(int)
+	if !ok {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+
+	in.Creator = int64(adminID)
+
 	response, err := a.uc.CreateTask(ctx, in)
 	if err != nil {
+		log.Error(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(response)
 	}
 
@@ -72,6 +82,7 @@ func (a AdminHandlers) DeleteTask(c *fiber.Ctx) error {
 
 	response, err := a.uc.DeleteTask(ctx, in)
 	if err != nil {
+		log.Error(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(response)
 	}
 

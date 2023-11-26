@@ -66,9 +66,11 @@ func (r *TaskRepository) DeleteTask(ctx context.Context, taskID string) (err err
 	return err
 }
 
-func (r *TaskRepository) GetTasks(ctx context.Context, filters models.TasksFilters) (tasks []models.Task, err error) {
+func (r *TaskRepository) GetTasks(ctx context.Context, filters models.TasksFilters) (tasks []models.TaskItem, err error) {
 	ctx, span := oteltrace.NewSpan(ctx, "GetTasks")
 	defer span.End()
+
+	tasks = []models.TaskItem{}
 
 	err = r.db.SelectContext(
 		ctx,

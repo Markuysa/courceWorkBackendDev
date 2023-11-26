@@ -41,6 +41,42 @@ func (uc *UC) ShowTasksList(ctx context.Context, request models.ShowTasksListReq
 	}, err
 }
 
+func (uc *UC) GetStatusList(ctx context.Context) (response []models.StatusListItem, err error) {
+	ctx, span := oteltrace.NewSpan(ctx, "GetStatusList")
+	defer span.End()
+
+	response, err = uc.clientRepo.GetStatusList(ctx)
+	if err != nil {
+		return response, err
+	}
+
+	return response, err
+}
+
+func (uc *UC) GetCategoryList(ctx context.Context) (response []models.CategoryListItem, err error) {
+	ctx, span := oteltrace.NewSpan(ctx, "GetCategoryList")
+	defer span.End()
+
+	response, err = uc.clientRepo.GetCategoryList(ctx)
+	if err != nil {
+		return response, err
+	}
+
+	return response, err
+}
+
+func (uc *UC) GetPriorityList(ctx context.Context) (response []models.PriorityListItem, err error) {
+	ctx, span := oteltrace.NewSpan(ctx, "GetPriorityList")
+	defer span.End()
+
+	response, err = uc.clientRepo.GetPriorityList(ctx)
+	if err != nil {
+		return response, err
+	}
+
+	return response, err
+}
+
 func (uc *UC) UpdateTask(ctx context.Context, request models.UpdateTask) (response models.UpdateTaskResponse, err error) {
 	ctx, span := oteltrace.NewSpan(ctx, "MoveTask")
 	defer span.End()

@@ -24,4 +24,20 @@ const (
 	set tg_chat = $1
 	where id = $2
 `
+	queryGetStatusList = `
+	select id,
+			description
+	from lists.status_list
+`
+	queryGetPriorityList = `
+	select id,
+			description
+	from lists.priority_list
+	
+`
+	queryGetCategoriesList = `
+	select id,
+			description
+	from lists.category_list
+`
 )

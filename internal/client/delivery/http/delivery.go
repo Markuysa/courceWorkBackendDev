@@ -6,9 +6,15 @@ import (
 )
 
 func MapClientRoutes(route fiber.Router, mw middleware.Middleware, handlers Handlers) {
-	route.Group("tasks")
+	tasks := route.Group("tasks")
 	{
-		route.Post("/list", mw.ClientAuth, handlers.GetTasksList)
-		route.Post("/update", mw.ClientAuth, handlers.UpdateTask)
+		tasks.Post("/list", mw.ClientAuth, handlers.GetTasksList)
+		tasks.Post("/update", mw.ClientAuth, handlers.UpdateTask)
+	}
+	lists := route.Group("/lists")
+	{
+		lists.Get("/status", mw.DefaultAuth, handlers.GetStatusList)
+		lists.Get("/priority", mw.DefaultAuth, handlers.GetPriorityList)
+		lists.Get("/category", mw.DefaultAuth, handlers.GetCategoryList)
 	}
 }

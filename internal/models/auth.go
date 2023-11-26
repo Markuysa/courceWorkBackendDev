@@ -7,7 +7,8 @@ type (
 		FailCause string `json:"fail_cause"`
 	}
 	GenerateOTPRequest struct {
-		Username string `validate:"required" json:"username"`
+		Username    string `validate:"required" json:"username"`
+		ServiceName string
 	}
 	ValidateOTPRequest struct {
 		Username string `json:"username"`
@@ -25,6 +26,17 @@ type (
 		FailCause   string
 	}
 
+	AdminSignInRequest struct {
+		Username string `json:"username"`
+		PassCode string `json:"pass_code"`
+		Password string `json:"password"`
+	}
+
+	AdminSignInResponse struct {
+		SessionKey string
+		FailCause  string
+	}
+
 	FinalizeSignInRequest struct {
 		Username  string `json:"username"`
 		PassCode  string `json:"pass_code"`
@@ -36,15 +48,16 @@ type (
 	}
 
 	SaveSessionRequest struct {
+		UserID     int
 		Username   string
 		SessionKey string
 		Role       int
 	}
-	SignUpRequest struct {
+	ClientSignUpRequest struct {
 		Username string
 		Password string
 	}
-	SignUpResponse struct {
+	ClientSignUpResponse struct {
 		Success   bool   `json:"success"`
 		QR        []byte `json:"qr"`
 		FailCause string `json:"fail_cause"`
@@ -74,7 +87,28 @@ type (
 	}
 
 	Session struct {
-		UserID int
-		Role   int
+		UserID   int
+		Role     int
+		Username string
+	}
+
+	AdminSignUpRequest struct {
+		Username string
+		Password string
+	}
+
+	AdminSignUpResponse struct {
+		Success   bool   `json:"success"`
+		QR        []byte `json:"qr"`
+		FailCause string `json:"fail_cause"`
+	}
+
+	FinalizeClientSignIn struct {
+		FailCause string
+		Success   bool
+	}
+	PrepareClientSignIn struct {
+		FailCause string
+		Success   bool
 	}
 )

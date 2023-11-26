@@ -39,6 +39,54 @@ func (t *TaskRepository) GetTasksList(ctx context.Context, userID int) (tasks []
 	return tasks, err
 }
 
+func (t *TaskRepository) GetStatusList(ctx context.Context) (status []models.StatusListItem, err error) {
+	ctx, span := oteltrace.NewSpan(ctx, "GetTasksList")
+	defer span.End()
+
+	err = t.db.SelectContext(
+		ctx,
+		&status,
+		queryGetStatusList,
+	)
+	if err != nil {
+		return status, err
+	}
+
+	return status, err
+}
+
+func (t *TaskRepository) GetCategoryList(ctx context.Context) (categories []models.CategoryListItem, err error) {
+	ctx, span := oteltrace.NewSpan(ctx, "GetTasksList")
+	defer span.End()
+
+	err = t.db.SelectContext(
+		ctx,
+		&categories,
+		queryGetCategoriesList,
+	)
+	if err != nil {
+		return categories, err
+	}
+
+	return categories, err
+}
+
+func (t *TaskRepository) GetPriorityList(ctx context.Context) (priority []models.PriorityListItem, err error) {
+	ctx, span := oteltrace.NewSpan(ctx, "GetTasksList")
+	defer span.End()
+
+	err = t.db.SelectContext(
+		ctx,
+		&priority,
+		queryGetPriorityList,
+	)
+	if err != nil {
+		return priority, err
+	}
+
+	return priority, err
+}
+
 func (t *TaskRepository) UpdateTask(ctx context.Context, task models.UpdateTask) (err error) {
 	ctx, span := oteltrace.NewSpan(ctx, "UpdateTask")
 	defer span.End()

@@ -7,7 +7,7 @@ const (
 		                       deadline,
 		                       status,
 		                       priority,
-		                       creator_id.
+		                       creator_id,
 		                       description,
 		                       participant_id
 		)values (
@@ -20,19 +20,21 @@ const (
 	where id = $2
 `
 	queryGetUsersTasks = `
-		select
-			id,
-			category,
-			deadline,
-			status,
-			priority,
-			creator_id.
-			description,
-			participant_id
-		from tasks.task
-		where 
-			participant_id is null or participant_id = $1
-		limit $2 offset $3
-
+	select
+		ts.id,
+		ct.description,
+		extract(epoch from ts.deadline)::bigint as deadline,
+		st.description,
+		pr.description,
+		creator_id,
+		ts.description,
+		participant_id
+	from tasks.task ts
+	left join lists.status_list st on st.id = ts.status
+	left join lists.category_list ct on ct.id = ts.category
+	left join lists.priority_list pr on pr.id = ts.priority
+	where
+		participant_id is null or participant_id = $1
+	limit $2 offset $3
 `
 )
